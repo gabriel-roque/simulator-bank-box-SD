@@ -101,7 +101,7 @@
                             <label class="display-1">9</label></v-btn>
                     </v-col>
                     <v-col cols="6">
-                        <v-btn color="success" dark class="btn-operator">
+                        <v-btn color="success" dark class="btn-operator" @click="confirm()">
                             <label class="display-1">Confirmar</label></v-btn>
                     </v-col>
                 </v-row>
@@ -208,6 +208,13 @@
 
                 this.valor = valorDisplay
 
+            },
+
+            confirm(){
+                if(this.operacao == 'Saque') {
+                    this.valor < this.conta ? this.conta -=  this.valor : this.operacao = 'Saldo insuficiente' 
+                }
+                this.operacao == 'Depósito' ? this.conta +=  this.valor : 0
             }
         }
     }
