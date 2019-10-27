@@ -1,5 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
-
-export default axios;
+export const clientApi = axios.create({
+    baseURL: 'http://localhost:8000/api/v1',
+    headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+        "Content-Type": "application/json;charset=UTF-8",
+    }
+});
