@@ -15,7 +15,7 @@ class CreateContasTable extends Migration
     {
         Schema::create('contas', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('saldo');
+            $table->bigInteger('saldo');
             $table->boolean('conta_block');
             $table->integer('cod_operacao')->nullable();
             $table->timestamps();

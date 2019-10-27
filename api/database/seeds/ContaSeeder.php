@@ -12,6 +12,6 @@ class ContaSeeder extends Seeder
      */
     public function run()
     {
-        Conta::create(['saldo' => 1000, 'conta_block' => false]);
+        Conta::create(['saldo' => 1000, 'conta_block' => false, 'cod_operacao' => 1]);
     }
 }
