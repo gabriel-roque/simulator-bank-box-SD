@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Conta;
+use App\Historico;
 use Illuminate\Http\Request;
 
 class ContaController extends Controller
@@ -41,8 +42,7 @@ class ContaController extends Controller
     {
         try {
 
-            $historico = Conta::all()->sortByDesc('id');
-//            dd($historico);
+            $historico = Historico::all();
             return response($historico->sortByDesc('id'), 200);
 
         } catch (\Exception $exception) {

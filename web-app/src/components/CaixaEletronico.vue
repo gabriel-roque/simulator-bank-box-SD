@@ -14,7 +14,7 @@
                         </thead>
                         <tbody>
                         <tr v-for="trans in historico" :key="trans.id">
-                            <td class="headline">R$ {{ trans.saldo.toLocaleString('pt-BR') }}</td>
+                            <td class="headline">R$ {{ trans.valor.toLocaleString('pt-BR') }}</td>
                         </tr>
                         </tbody>
                     </template>
@@ -24,7 +24,7 @@
                 <v-row justify="center">
                     <v-col lg="10" xl="6">
                         <div class="pa-6 display-cash">
-                            <label class="display-1 cash-text">Saldo em conta: R$ {{saldo.toLocaleString('pt-BR')}}</label>
+                            <label class="display-1 cash-text">Saldo em conta: R$ {{conta.saldo.toLocaleString('pt-BR')}}</label>
                         </div>
                     </v-col>
                 </v-row>
@@ -35,18 +35,23 @@
                             <v-row>
                                 <v-col md="3">
                                     <v-row>
-                                        <v-btn color="success" class="btn-display headline" @click="operacao(1)">
+                                        <v-btn color="success" class="btn-display headline" @click="operacao(1)" :disabled="status">
                                             Depositar
                                         </v-btn>
                                     </v-row>
                                     <v-row class="mt-15">
-                                        <v-btn color="error" class="btn-display headline" @click="operacao(2)">Sacar</v-btn>
+                                        <v-btn color="error" class="btn-display headline" @click="operacao(2)" :disabled="status">Sacar</v-btn>
                                     </v-row>
                                 </v-col>
                                 <v-col cols="6">
                                     <v-row>
                                         <div class="display-operator pa-3">
-                                            <label class="headline">Operação: <b>{{statusOperacao.nome}}</b></label>
+                                            <label class="headline">
+                                                <p v-if="!conta.status">
+                                                    Operação: <b>{{statusOperacao.nome}} </b>
+                                                </p>
+                                                <p v-else>  <b>Conta Bloqueada </b></p>
+                                            </label>
                                         </div>
                                     </v-row>
                                     <v-row class="mt-3">
@@ -57,7 +62,7 @@
                                 </v-col>
                                 <v-col md="3">
                                     <v-row>
-                                        <v-btn color="warning" class="btn-display headline" @click="operacao(3)">Bloquear
+                                        <v-btn color="warning" class="btn-display headline" @click="operacao(3)" :disabled="status">Bloquear
                                         </v-btn>
                                     </v-row>
                                     <v-row class="mt-15">
@@ -105,7 +110,7 @@
                                     <label class="display-1">6</label></v-btn>
                             </v-col>
                             <v-col cols="6">
-                                <v-btn color="warning" class="btn-operator" @click="corrgir">
+                                <v-btn color="warning" class="btn-operator" @click="corrigir">
                                     <label class="display-1">Corrigir</label></v-btn>
                             </v-col>
                         </v-row>
@@ -170,8 +175,10 @@
 
         data() {
             return {
-                conta: 0,
-                statusBlock: true,
+                conta: {
+                    saldo:'',
+                    status: ''
+                },
                 statusOperacao: {nome: 'Nenhuma', codigo: 0},
                 valor: 0,
                 transacao: {},
@@ -181,7 +188,10 @@
 
         computed: {
             saldo() {
-                return this.conta
+                return this.conta.saldo
+            },
+            status() {
+                return this.conta.status == 1 ? true : false
             }
         },
 
@@ -204,27 +214,31 @@
                 switch (numOperacao) {
                     case 1:
                         this.transacao = {
-                            saldo: this.conta += this.valor,
+                            saldo: this.conta.saldo += this.valor,
                             cod_operacao: this.statusOperacao.codigo
                         };
                         break;
 
                     case 2:
-                        this.transacao = {
-                            saldo: this.conta -= this.valor,
-                            cod_operacao: this.statusOperacao.codigo
-                        };
+                        if(this.valor <= this.conta.saldo) {
+                            this.transacao = {
+                                saldo: this.conta.saldo -= this.valor,
+                                cod_operacao: this.statusOperacao.codigo
+                            };
+                        } else {
+                            this.statusOperacao = {nome: 'Saldo Insuficiente'};
+                        }
                         break;
 
                     case 3:
                         this.transacao = {
-                            conta_block: true
+                           status: true
                         };
                         break;
 
                     case 4:
                         this.transacao = {
-                            conta_block: false
+                            status: false
                         };
                         break;
                 }
@@ -287,7 +301,7 @@
                 this.valor = valorDisplay
             },
 
-            corrgir() {
+            corrigir() {
                 let valorDisplay = this.valor;
 
                 valorDisplay = valorDisplay.toString().match(/\d/g);
@@ -302,8 +316,8 @@
             sincronizar() {
                 clientApi.get('/conta')
                     .then(resp => {
-                        this.conta = resp.data.saldo;
-                        this.statusBlock = resp.data.conta_block;
+                        this.conta.saldo = resp.data.saldo;
+                        this.conta.status = resp.data.status;
                     })
                     .catch(error => {
                         console.log(error)

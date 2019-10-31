@@ -6,28 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conta extends Model
 {
-    protected $fillable = ['saldo', 'conta_block', 'cod_operacao'];
+    protected $fillable = ['saldo', 'status'];
 
     public static function getConta()
     {
         return Conta::all()->last();
     }
 
+
     public static function postConta($dados)
     {
-        if($dados->conta_block == null) $dados->conta_block = false;
 
-        if($dados->saldo == null) $dados->saldo = Conta::all()->last()->saldo;
+        if(!$dados->status) $dados->status = false;
 
-        Conta::create([
+        $historicoNao = true;
+        if(!$dados->saldo){
+            $historicoNao = false;
+            $dados->saldo = Conta::all()->last()->saldo;
+        }
+
+        Conta::find(1)->update([
             'saldo' => $dados->saldo,
-            'conta_block' => $dados->conta_block,
-            'cod_operacao' => $dados->cod_operacao
-        ]);
+            'status' => $dados->status,
+            ]);
+        if($historicoNao)  Historico::setHistorico($dados);
 
-        /* cod_operacao
-            1 - Depósito
-            2 - Saque
-        */
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateContasTable extends Migration
+class CreateHistoricosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateContasTable extends Migration
      */
     public function up()
     {
-        Schema::create('contas', function (Blueprint $table) {
+        Schema::create('historicos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('saldo');
-            $table->boolean('status');
+            $table->bigInteger('valor');
+            $table->unsignedBigInteger('conta_id');
+            $table->integer('cod_operacao')->nullable();
+            $table->foreign('conta_id')->references('id')->on('contas');
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateContasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contas');
+        Schema::dropIfExists('historicos');
     }
 }
