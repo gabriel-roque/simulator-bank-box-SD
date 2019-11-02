@@ -1,6 +1,22 @@
 <template>
     <v-container>
+
+
         <v-row align="start" justify="center">
+            <v-snackbar
+                v-model="snackbar"
+                top
+                color="red"
+            >
+                {{ text }}
+                <v-btn
+                    color="black"
+                    text
+                    @click="snackbar = false"
+                >
+                    Fechar
+                </v-btn>
+            </v-snackbar>
             <v-col cols="3">
                 <v-simple-table
                     dense="dense"
@@ -47,10 +63,7 @@
                                     <v-row>
                                         <div class="display-operator pa-3">
                                             <label class="headline">
-                                                <p v-if="!conta.status">
-                                                    Operação: <b>{{statusOperacao.nome}} </b>
-                                                </p>
-                                                <p v-else>  <b>Conta Bloqueada </b></p>
+                                                Operação: <b>{{statusOperacao.nome}} </b>
                                             </label>
                                         </div>
                                     </v-row>
@@ -181,6 +194,8 @@
                 },
                 statusOperacao: {nome: 'Nenhuma', codigo: 0},
                 valor: 0,
+                text: '',
+                snackbar: false,
                 transacao: {},
                 historico: {}
             }
@@ -200,6 +215,11 @@
                 if (isNaN(e)) this.valor = 0;
                 let qtaDigitos = e.toString().match(/\d/g);
                 if (qtaDigitos.length === 12) this.valor = 0;
+            },
+
+            'conta.status'(e) {
+                this.resetDisplay()
+                if(e) this.statusOperacao.nome = 'Conta Bloqueada'
             }
         },
 
@@ -226,7 +246,9 @@
                                 cod_operacao: this.statusOperacao.codigo
                             };
                         } else {
-                            this.statusOperacao = {nome: 'Saldo Insuficiente'};
+                            // this.statusOperacao.nome = 'Saldo Insuficiente'
+                            this.snackbar = true
+                            this.text = 'SALDO INSUFICIENTE!'
                         }
                         break;
 
